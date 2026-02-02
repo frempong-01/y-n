@@ -61,6 +61,7 @@ button {
   box-shadow: 0 6px 20px rgba(0,0,0,0.2);
   width: min(240px, 85%);
 }
+button:active { transform: scale(0.95); }
 
 .button-row {
   display: flex;
@@ -79,6 +80,7 @@ video {
   margin: 12px 0;
   box-shadow: 0 10px 40px rgba(0,0,0,0.35);
   background: #000;
+  object-fit: cover;
 }
 
 @keyframes fadeIn {
@@ -107,16 +109,14 @@ video {
 <div class="hearts" id="hearts"></div>
 <canvas id="confetti"></canvas>
 
-<!-- PAGE 1 -->
 <div class="page active" id="page1">
   <h2>Hey you… I’ve been wanting to ask you something 💭</h2>
   <button onclick="startExperience()">Okay… tell me 🫶</button>
 </div>
 
-<!-- PAGE 2 -->
 <div class="page" id="page2">
   <h1>Will you be my Valentine? 💖</h1>
-  <video id="reactionVideo" src="videos/neutral.mp4" playsinline muted loop></video>
+  <video id="reactionVideo" src="videos/neutral.mp4" playsinline muted loop autoplay></video>
   <p id="responseText">This is a very important life decision btw 😌</p>
   <div class="button-row">
     <button onclick="sayYes()">YESSS 💖</button>
@@ -124,7 +124,6 @@ video {
   </div>
 </div>
 
-<!-- PAGE 3 -->
 <div class="page" id="page3">
   <h1>YOU SAID YES!!! 🎉💘</h1>
   <p>You just unlocked unlimited love, laughs, and late-night talks 💞</p>
@@ -135,17 +134,22 @@ video {
 let noCount = 0;
 let musicStarted = false;
 
+// 5 Videos
 const sadVideos = [
-"videos/y2.mp4","videos/y1.mp4","videos/y3.mp4","videos/y4.mp4","videos/y5.mp4"
+  "videos/y2.mp4",
+  "videos/y1.mp4",
+  "videos/y3.mp4",
+  "videos/y4.mp4",
+  "videos/y5.mp4"
 ];
 
+// 5 Texts (Matched to videos)
 const sadTexts = [
-"Oh c'mon… give it a try, i promise you won't regret🥲",
-"I even imagined our cute selfies 😭",
-"I had a whole speech prepared though ",
-"I was planning on buying you lots of ice cream💔",
-"Plot twist… you're actually supposed to say yes",
-"Okay last try… slow blink… 🥺"
+  "Oh c'mon… give it a try, i promise you won't regret 🥲",
+  "I even imagined our cute selfies 😭",
+  "I had a whole speech prepared though...",
+  "I was planning on buying you lots of ice cream 💔",
+  "Plot twist… you're actually supposed to say yes"
 ];
 
 const yesVideo = "videos/yes.mp4";
@@ -154,13 +158,13 @@ function playVideo(src) {
   const video = document.getElementById("reactionVideo");
   video.src = src;
   video.load();
-  video.play().catch(()=>{});
+  video.play().catch(e => console.log("Video play error:", e));
 }
 
 function startExperience() {
   const music = document.getElementById("bgMusic");
   if (!musicStarted) {
-    music.play().catch(()=>{});
+    music.play().catch(e => console.log("Audio requires interaction"));
     musicStarted = true;
   }
   switchPage("page1", "page2");
@@ -171,7 +175,6 @@ function sayYes() {
   document.getElementById("responseText").innerText =
     `You just made me the happiest person ever 🥹💘`;
 
-  // Go to Page 3 immediately
   switchPage("page2", "page3");
 
   // Play YES video on Page 3
@@ -184,14 +187,19 @@ function sayYes() {
 }
 
 function sayNo() {
+  // Check if we still have videos left to show
   if (noCount < sadVideos.length) {
     playVideo(sadVideos[noCount]);
     document.getElementById("responseText").innerText = sadTexts[noCount];
     noCount++;
   } else {
+    // End of loop: Show the 'Give Up' video (g1.mp4)
     playVideo("videos/g1.mp4");
     document.getElementById("responseText").innerText =
       `Okay… I’ll stop asking now 💔 But you’ll always be special to me.`;
+      
+    // Optional: Hide buttons so they can't click anymore
+    // document.querySelector('.button-row').style.display = 'none';
   }
 }
 
