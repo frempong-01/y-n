@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Be My Valentine 💘</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #ff9ecb 0%, #c084fc 50%, #a78bfa 100%);
+  color: white;
+  height: 100svh;
+  overflow: hidden;
+  text-align: center;
+}
+
+.page {
+  display: none;
+  height: 100svh;
+  width: 100%;
+  padding: 18px 16px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.7s ease forwards;
+}
+.active { display: flex; }
+
+h1, h2 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 12px;
+  text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+h1 { font-size: clamp(1.6rem, 5vh, 2.3rem); }
+h2 { font-size: clamp(1.3rem, 4.5vh, 1.8rem); }
+
+p {
+  margin-bottom: 14px;
+  font-size: clamp(0.9rem, 2.2vh, 1.1rem);
+  max-width: 95%;
+  line-height: 1.4;
+}
+
+button {
+  background: rgba(255,255,255,0.95);
+  color: #e91e63;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 50px;
+  font-size: clamp(0.9rem, 2.2vh, 1rem);
+  font-weight: 600;
+  margin: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  width: min(240px, 85%);
+}
+
+.button-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+video {
+  width: auto;
+  max-width: 92%;
+  max-height: 32vh;
+  border-radius: 18px;
+  margin: 12px 0;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  background: #000;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating hearts */
+.hearts { position: fixed; inset: 0; pointer-events: none; z-index: -1; overflow: hidden; }
+.heart {
+  position: absolute;
+  bottom: -10%;
+  animation: floatUp 7s linear forwards;
+}
+@keyframes floatUp {
+  to { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+}
+
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" src="music.mpeg" loop preload="auto"></audio>
+
+<div class="hearts" id="hearts"></div>
+<canvas id="confetti"></canvas>
+
+<!-- PAGE 1 -->
+<div class="page active" id="page1">
+  <h2>Hey you… I’ve been wanting to ask you something 💭</h2>
+  <button onclick="startExperience()">Okay… tell me 🫶</button>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page2">
+  <h1>Will you be my Valentine? 💖</h1>
+  <video id="reactionVideo" src="videos/neutral.mp4" playsinline muted loop></video>
+  <p id="responseText">This is a very important life decision btw 😌</p>
+  <div class="button-row">
+    <button onclick="sayYes()">YESSS 💖</button>
+    <button onclick="sayNo()">Nooo 💔</button>
+  </div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="page3">
+  <h1>YOU SAID YES!!! 🎉💘</h1>
+  <p>You just unlocked unlimited love, laughs, and late-night talks 💞</p>
+  <video id="yesVideoPlayer" playsinline autoplay muted loop></video>
+</div>
+
+<script>
+let noCount = 0;
+let musicStarted = false;
+
+const sadVideos = [
+"videos/y2.mp4","videos/y1.mp4","videos/y3.mp4","videos/y4.mp4","videos/y5.mp4"
+];
+
+const sadTexts = [
+"Oh c'mon… give it a try, i promise you won't regret🥲",
+"I even imagined our cute selfies 😭",
+"I had a whole speech prepared though ",
+"I was planning on buying you lots of ice cream💔",
+"Plot twist… you're actually supposed to say yes",
+"Okay last try… slow blink… 🥺"
+];
+
+const yesVideo = "videos/yes.mp4";
+
+function playVideo(src) {
+  const video = document.getElementById("reactionVideo");
+  video.src = src;
+  video.load();
+  video.play().catch(()=>{});
+}
+
+function startExperience() {
+  const music = document.getElementById("bgMusic");
+  if (!musicStarted) {
+    music.play().catch(()=>{});
+    musicStarted = true;
+  }
+  switchPage("page1", "page2");
+  playVideo("videos/neutral.mp4");
+}
+
+function sayYes() {
+  document.getElementById("responseText").innerText =
+    `You just made me the happiest person ever 🥹💘`;
+
+  // Go to Page 3 immediately
+  switchPage("page2", "page3");
+
+  // Play YES video on Page 3
+  const yesPlayer = document.getElementById("yesVideoPlayer");
+  yesPlayer.src = yesVideo;
+  yesPlayer.load();
+  yesPlayer.play().catch(()=>{});
+
+  launchSimpleConfetti();
+}
+
+function sayNo() {
+  if (noCount < sadVideos.length) {
+    playVideo(sadVideos[noCount]);
+    document.getElementById("responseText").innerText = sadTexts[noCount];
+    noCount++;
+  } else {
+    playVideo("videos/g1.mp4");
+    document.getElementById("responseText").innerText =
+      `Okay… I’ll stop asking now 💔 But you’ll always be special to me.`;
+  }
+}
+
+function switchPage(from, to) {
+  document.getElementById(from).classList.remove("active");
+  document.getElementById(to).classList.add("active");
+}
+
+// Floating hearts
+setInterval(() => {
+  const heart = document.createElement("div");
+  heart.className = "heart";
+  heart.innerHTML = Math.random() > 0.5 ? "💖" : "🫶";
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.fontSize = (16 + Math.random() * 22) + "px";
+  heart.style.animationDuration = (5 + Math.random() * 5) + "s";
+  heart.style.color = `hsl(${Math.random()*60 + 320}, 90%, 65%)`;
+  document.getElementById("hearts").appendChild(heart);
+  setTimeout(() => heart.remove(), 9000);
+}, 400);
+
+// Confetti
+function launchSimpleConfetti() {
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = Array.from({length:120}, () => ({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height - canvas.height,
+    r: Math.random()*6+3,
+    color:`hsl(${Math.random()*360},90%,60%)`,
+    vx: Math.random()*8-4,
+    vy: Math.random()*5+2,
+    rot: Math.random()*360,
+    rotSpeed: Math.random()*10-5
+  }));
+
+  function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; p.rot+=p.rotSpeed;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color; ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2); ctx.restore();
+    });
+    if(pieces.some(p=>p.y<canvas.height+50)) requestAnimationFrame(animate);
+  }
+  animate();
+}
+</script>
+
+</body>
+</html>
